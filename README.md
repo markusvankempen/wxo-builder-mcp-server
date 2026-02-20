@@ -1,6 +1,10 @@
 # WXO Builder MCP Server
 
+**Version** 1.0.4 · **Author** [Markus van Kempen](mailto:markus.van.kempen@gmail.com) · **Date** 2026-02-20
+
 MCP server for IBM Watson Orchestrate (WXO). Manage tools, agents, connections, flows, and execute tools from Cursor, VS Code Copilot, Claude Desktop, Antigravity, Windsurf, or the WxO Builder extension.
+
+[markusvankempen.github.io](https://markusvankempen.github.io) · [WxO Builder extension](https://marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder) · [CONTRIBUTING](CONTRIBUTING.md) · [CHANGELOG](CHANGELOG.md) · [LICENSE](LICENSE)
 
 ## Related: WxO Builder Extension + MCP Server – a perfect combo
 
@@ -8,17 +12,51 @@ The **WxO Builder** extension and this **MCP Server** work together to create an
 
 | | Link |
 |---|------|
-| **VS Code Marketplace** | [marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder](https://marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder) |
+| **WxO Builder extension** | [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder) |
 | **Open VSX** | [open-vsx.org/extension/markusvankempen/wxo-builder](https://open-vsx.org/extension/markusvankempen/wxo-builder) |
+| **Author** | [markusvankempen.github.io](https://markusvankempen.github.io) |
+| **MCP Registry** | [registry.modelcontextprotocol.io/?q=wxo-builder-mcp-server](https://registry.modelcontextprotocol.io/?q=wxo-builder-mcp-server) |
 | **Source Code** | [github.com/markusvankempen/wxo-builder-vscode-extension](https://github.com/markusvankempen/wxo-builder-vscode-extension) |
 
 The extension provides visual tool creation, drag-and-drop agent editing, and local/remote testing. The MCP server exposes the same Watson Orchestrate capabilities to AI assistants in Cursor, Claude Desktop, Antigravity, Windsurf, and VS Code Copilot.
+
+### Directory listing copy (cursor.directory, etc.)
+
+**Cursor Deep Link** (use this so the install dialog shows "WxO Builder MCP Server"):
+
+```
+cursor://anysphere.cursor-deeplink/mcp/install?name=WxO%20Builder%20MCP%20Server&config=eyJXeE8gQnVpbGRlciBNQ1AgU2VydmVyIjp7ImNvbW1hbmQiOiJucHgiLCJhcmdzIjpbIi15IiwiQG1hcmt1c3ZhbmtlbXBlbi93eG8tYnVpbGRlci1tY3Atc2VydmVyIl0sImVudiI6eyJXT19BUElfS0VZIjoieW91ci1hcGkta2V5IiwiV09fSU5TVEFOQ0VfVVJMIjoiaHR0cHM6Ly95b3VyLWluc3RhbmNlLm9yY2hlc3RyYXRlLmlibS5jb20ifX19
+```
+
+Config JSON for [Cursor deeplink generator](https://docs.cursor.com/deeplinks):
+
+```json
+{
+  "WxO Builder MCP Server": {
+    "command": "npx",
+    "args": ["-y", "@markusvankempen/wxo-builder-mcp-server"],
+    "env": {
+      "WO_API_KEY": "your-api-key",
+      "WO_INSTANCE_URL": "https://your-instance.orchestrate.ibm.com"
+    }
+  }
+}
+```
+
+**Short description (≤100 chars):**
+
+> Manage Watson Orchestrate tools, agents, connections. Pair with [WxO Builder extension](https://marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder).
+
+**Longer description:**
+
+> Manage IBM Watson Orchestrate (WXO) tools, agents, connections, and flows from Cursor, Copilot, or Claude. Best used with the [WxO Builder VS Code extension](https://marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder) for a full IDE experience: visual tool creation, drag-and-drop agents, and local/remote testing.
 
 ---
 
 **Distribution options:**
 
 - **npm** – Install `@markusvankempen/wxo-builder-mcp-server` (recommended)
+- **MCP Registry** – [registry.modelcontextprotocol.io/?q=wxo-builder-mcp-server](https://registry.modelcontextprotocol.io/?q=wxo-builder-mcp-server)
 - **Standalone repo** – [github.com/markusvankempen/wxo-builder-mcp-server](https://github.com/markusvankempen/wxo-builder-mcp-server) for cloning just the MCP server
 - **Devkit** – This package is also part of the [watsonx-orchestrate-devkit](https://github.com/markusvankempen/watsonx-orchestrate-devkit) at `packages/wxo-builder-mcp-server` (shared with the WxO Builder extension)
 
@@ -27,6 +65,10 @@ The extension provides visual tool creation, drag-and-drop agent editing, and lo
 ```bash
 npm install @markusvankempen/wxo-builder-mcp-server
 ```
+
+### One-click install in Cursor
+
+**[Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=WxO%20Builder%20MCP%20Server&config=eyJXeE8gQnVpbGRlciBNQ1AgU2VydmVyIjp7ImNvbW1hbmQiOiJucHgiLCJhcmdzIjpbIi15IiwiQG1hcmt1c3ZhbmtlbXBlbi93eG8tYnVpbGRlci1tY3Atc2VydmVyIl0sImVudiI6eyJXT19BUElfS0VZIjoieW91ci1hcGkta2V5IiwiV09fSU5TVEFOQ0VfVVJMIjoiaHR0cHM6Ly95b3VyLWluc3RhbmNlLm9yY2hlc3RyYXRlLmlibS5jb20ifX19)** — Click to install (shows "WxO Builder MCP Server"). Then set `WO_API_KEY` and `WO_INSTANCE_URL` in Cursor MCP settings.
 
 ## Quick Start
 
@@ -309,7 +351,7 @@ The server will appear at [registry.modelcontextprotocol.io](https://registry.mo
 
 ## Implementation: TypeScript vs Node.js
 
-This MCP server is written in **TypeScript** and compiled to JavaScript. Like the [Maximo MCP server](https://github.com/markusvankempen/Maximo-MCP), it can load an OpenAPI spec (`watson-orchestrate-openapi.json`) for documentation and discovery.
+This MCP server is written in **TypeScript** and compiled to JavaScript. It loads an OpenAPI spec (`watson-orchestrate-openapi.json`) for documentation and discovery.
 
 **Why TypeScript for Watson Orchestrate:**
 
@@ -317,12 +359,6 @@ This MCP server is written in **TypeScript** and compiled to JavaScript. Like th
 - Type safety for Watson Orchestrate’s varied API responses
 - Easier to maintain and extend across multiple modules
 
-**When plain Node.js fits:**
-
-- Smaller, single-file servers (e.g. Maximo MCP)
-- No build step required
-- Quick prototyping
-
 ## License
 
-Apache-2.0
+Apache-2.0 — See [LICENSE](LICENSE). [CONTRIBUTING](CONTRIBUTING.md) · [CHANGELOG](CHANGELOG.md)
