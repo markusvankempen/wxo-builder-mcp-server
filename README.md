@@ -1,4 +1,4 @@
-# WXO Builder MCP Server
+# WXO Builder MCP Server (Really a Client)
 
 **Version** 1.0.4 · **Author** [Markus van Kempen](mailto:markus.van.kempen@gmail.com) · **Date** 2026-02-20
 
