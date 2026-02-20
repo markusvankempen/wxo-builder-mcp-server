@@ -1,0 +1,38 @@
+{
+    "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+    "name": "io.github.markusvankempen/wxo-builder",
+    "description": "MCP server for IBM Watson Orchestrate (WXO): manage tools, agents, connections, flows, and execute tools from Cursor, VS Code Copilot, or Claude.",
+    "title": "Watson Orchestrate",
+    "repository": {
+        "url": "https://github.com/markusvankempen/watsonx-orchestrate-devkit",
+        "source": "github",
+        "subfolder": "packages/mcp-server"
+    },
+    "version": "1.0.0",
+    "packages": [
+        {
+            "registryType": "npm",
+            "identifier": "@markusvankempen/wxo-builder-mcp",
+            "version": "1.0.0",
+            "transport": {
+                "type": "stdio"
+            },
+            "environmentVariables": [
+                {
+                    "name": "WO_API_KEY",
+                    "description": "IBM Cloud API key for Watson Orchestrate",
+                    "isRequired": true,
+                    "format": "string",
+                    "isSecret": true
+                },
+                {
+                    "name": "WO_INSTANCE_URL",
+                    "description": "Watson Orchestrate instance URL (e.g. https://xxx.orchestrate.ibm.com)",
+                    "isRequired": true,
+                    "format": "string",
+                    "isSecret": false
+                }
+            ]
+        }
+    ]
+}

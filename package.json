@@ -1,0 +1,69 @@
+{
+    "name": "wxo-mvk-test",
+    "version": "1.0.0",
+    "description": "MCP server for IBM Watson Orchestrate (WXO): manage tools, agents, connections, flows, and execute tools from Cursor, VS Code Copilot, or Claude.",
+    "mcpName": "io.github.markusvankempen/wxo-builder",
+    "type": "module",
+    "main": "dist/index.js",
+    "bin": {
+        "wxo-builder-mcp": "dist/index.js"
+    },
+    "files": [
+        "dist",
+        "README.md"
+    ],
+    "scripts": {
+        "start": "node dist/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/markusvankempen/wxo-mvk-test.git"
+    },
+    "keywords": [
+        "mcp",
+        "model-context-protocol",
+        "watsonx",
+        "watson-orchestrate",
+        "ibm",
+        "ai",
+        "agents",
+        "tools"
+    ],
+    "author": "Markus van Kempen <markus.van.kempen@gmail.com>",
+    "license": "Apache-2.0",
+    "engines": {
+        "node": ">=18"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.26.0",
+        "archiver": "^7.0.1",
+        "dotenv": "^17.3.1",
+        "node-fetch": "^3.3.2",
+        "zod": "^4.3.6"
+    },
+    "lint-staged": {
+        "src/**/*.ts": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "*.{json,md}": [
+            "prettier --write"
+        ]
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^20.4.1",
+        "@commitlint/config-conventional": "^20.4.1",
+        "@types/archiver": "^7.0.0",
+        "@types/node": "^20.19.33",
+        "@typescript-eslint/eslint-plugin": "^6.21.0",
+        "@typescript-eslint/parser": "^6.21.0",
+        "eslint": "^8.57.1",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.5",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
+        "prettier": "^3.8.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3"
+    }
+}

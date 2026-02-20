@@ -1,0 +1,7 @@
+# Source and config - only dist + README go to npm
+src/
+server.json
+tsconfig.json
+.env
+.env.*
+*.log
