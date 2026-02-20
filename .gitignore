@@ -4,4 +4,3 @@ tests/
 watson-orchestrate-openapi.json
 .env
 *.log
-dist/
