@@ -1,10 +1,39 @@
-# WXO Builder MCP Server (Really a Client)
+# WXO Builder MCP Server
+
+[![npm version](https://img.shields.io/npm/v/wxo-builder-mcp-server.svg)](https://www.npmjs.com/package/wxo-builder-mcp-server)
+[![npm downloads](https://img.shields.io/npm/dm/wxo-builder-mcp-server.svg)](https://www.npmjs.com/package/wxo-builder-mcp-server)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
+<p align="center">
+  <img src="https://unpkg.com/wxo-builder-mcp-server/resources/icon.svg" alt="WXO Builder MCP Server" width="96" height="96"/>
+</p>
+
+<p align="center">
+  <a href="https://cursor.directory/mcp/wxo-builder-mcp-server"><img src="https://img.shields.io/badge/Add_to_Cursor-WXO%20Builder%20MCP-0f62fe?style=for-the-badge" alt="Add MCP server to Cursor" /></a>
+</p>
 
 **Version** 1.0.4 · **Author** [Markus van Kempen](mailto:markus.van.kempen@gmail.com) · **Date** 2026-02-20
 
 MCP server for IBM Watson Orchestrate (WXO). Manage tools, agents, connections, flows, and execute tools from Cursor, VS Code Copilot, Claude Desktop, Antigravity, Windsurf, or the WxO Builder extension.
 
-[markusvankempen.github.io](https://markusvankempen.github.io) · [WxO Builder extension](https://marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder) · [CONTRIBUTING](CONTRIBUTING.md) · [CHANGELOG](CHANGELOG.md) · [LICENSE](LICENSE)
+[markusvankempen.github.io](https://markusvankempen.github.io) · [WxO Builder extension](https://marketplace.visualstudio.com/items?itemName=MarkusvanKempen.wxo-builder) · [CONTRIBUTING](CONTRIBUTING.md) · [CHANGELOG](CHANGELOG.md) · [PUBLISHING](PUBLISHING.md) · [LICENSE](LICENSE)
+
+## Architecture & Data Flow
+
+This package has a **dual role**:
+
+1. **MCP protocol:** It acts as an **MCP server** — your AI environment (Cursor, Claude Desktop, VS Code Copilot, Antigravity, Windsurf, etc.) is the MCP *client* that connects to it and calls tools.
+2. **Watson Orchestrate:** It acts as an **HTTP client** — it makes REST requests to your Watson Orchestrate instance. Watson Orchestrate never connects back to this process.
+
+```
+┌─────────────────────────────────┐     MCP protocol      ┌──────────────────────────┐     HTTP (REST API)     ┌─────────────────────────┐
+│  MCP Client                     │  ◄──────────────────► │  WXO Builder MCP Server │  ───────────────────►  │  Watson Orchestrate     │
+│  (Cursor, Claude Desktop,       │     tool calls        │  (this package)          │     /v1/orchestrate/*  │  instance                │
+│   Copilot, Antigravity, etc.)    │                       │                         │                        │  (your WO cloud/hosted)  │
+└─────────────────────────────────┘                       └──────────────────────────┘                        └─────────────────────────┘
+```
+
+The MCP server exposes tools that proxy operations to Watson Orchestrate. When you invoke a tool (e.g. `list_skills`, `invoke_agent`), the server forwards the request to the Watson Orchestrate API and returns the result.
 
 ## Related: WxO Builder Extension + MCP Server – a perfect combo
 
@@ -34,14 +63,17 @@ Config JSON for [Cursor deeplink generator](https://docs.cursor.com/deeplinks):
 {
   "WxO Builder MCP Server": {
     "command": "npx",
-    "args": ["-y", "@markusvankempen/wxo-builder-mcp-server"],
+    "args": ["-y", "wxo-builder-mcp-server"],
     "env": {
       "WO_API_KEY": "your-api-key",
-      "WO_INSTANCE_URL": "https://your-instance.orchestrate.ibm.com"
+      "WO_INSTANCE_URL": "https://your-instance.orchestrate.ibm.com",
+      "WO_AGENT_IDs": "agent-id-1,agent-id-2"
     }
   }
 }
 ```
+
+When `WO_AGENT_IDs` (comma-separated list) or `WO_AGENT_ID` is set, agent-based tools use the first ID as default when the user does not specify an agent.
 
 **Short description (≤100 chars):**
 
@@ -55,7 +87,7 @@ Config JSON for [Cursor deeplink generator](https://docs.cursor.com/deeplinks):
 
 **Distribution options:**
 
-- **npm** – Install `@markusvankempen/wxo-builder-mcp-server` (recommended)
+- **npm** – Install `wxo-builder-mcp-server` (recommended)
 - **MCP Registry** – [registry.modelcontextprotocol.io/?q=wxo-builder-mcp-server](https://registry.modelcontextprotocol.io/?q=wxo-builder-mcp-server)
 - **Standalone repo** – [github.com/markusvankempen/wxo-builder-mcp-server](https://github.com/markusvankempen/wxo-builder-mcp-server) for cloning just the MCP server
 - **Devkit** – This package is also part of the [watsonx-orchestrate-devkit](https://github.com/markusvankempen/watsonx-orchestrate-devkit) at `packages/wxo-builder-mcp-server` (shared with the WxO Builder extension)
@@ -63,7 +95,7 @@ Config JSON for [Cursor deeplink generator](https://docs.cursor.com/deeplinks):
 ## Install from npm
 
 ```bash
-npm install @markusvankempen/wxo-builder-mcp-server
+npm install wxo-builder-mcp-server
 ```
 
 ### One-click install in Cursor
@@ -77,7 +109,14 @@ npm install @markusvankempen/wxo-builder-mcp-server
 ```env
 WO_API_KEY=<your_ibm_cloud_api_key>
 WO_INSTANCE_URL=https://<your-instance-id>.orchestrate.ibm.com
+
+# Optional: default agent(s) when user omits agent_id/agent_name (first is used)
+WO_AGENT_IDs=agent-id-1,agent-id-2
+# Or single agent (backwards compatible):
+# WO_AGENT_ID=<your-agent-id>
 ```
+
+When `WO_AGENT_IDs` (comma-separated) or `WO_AGENT_ID` is set, tools use the first ID as default when the user does not specify an agent.
 
 2. **Configure your MCP client** – use `npx` so you never reference `.js` paths. Example for Cursor (`.cursor/mcp.json`):
 
@@ -86,7 +125,7 @@ WO_INSTANCE_URL=https://<your-instance-id>.orchestrate.ibm.com
     "mcpServers": {
         "watsonx": {
             "command": "npx",
-            "args": ["-y", "@markusvankempen/wxo-builder-mcp-server"],
+            "args": ["-y", "wxo-builder-mcp-server"],
             "env": {
                 "WO_API_KEY": "your-api-key",
                 "WO_INSTANCE_URL": "https://xxx.orchestrate.ibm.com"
@@ -104,7 +143,7 @@ VS Code Copilot uses `servers` instead of `mcpServers`; same `command` and `args
         "watsonx": {
             "type": "stdio",
             "command": "npx",
-            "args": ["-y", "@markusvankempen/wxo-builder-mcp-server"],
+            "args": ["-y", "wxo-builder-mcp-server"],
             "env": {
                 "WO_API_KEY": "...",
                 "WO_INSTANCE_URL": "https://...orchestrate.ibm.com"
@@ -145,23 +184,25 @@ See [`examples/README.md`](examples/README.md) for details.
 - **`delete_skill`** – Delete a tool
 - **`deploy_skill`** – Create a tool from OpenAPI spec. Set `openapi_spec["x-ibm-connection-id"]` to **bind a connection** to the tool
 - **`deploy_tool_from_url`** – Create a tool from a URL. Handles (1) APIs with API key → auto-creates connection, (2) public APIs (REST Countries, Open-Meteo) → no auth.
-- **`create_tool_and_assign_to_agent`** – Create a tool from URL and assign to agent in one step. Use for "create REST Countries tool and assign to TimeWeatherAgent". Works with public APIs and APIs with keys.
-- **`assign_tool_to_agent`** – Assign a tool to an agent by `tool_name`/`tool_id` and `agent_name`/`agent_id`.
+- **`create_python_tool_from_tool_spec_json`** – Create a Python tool from `tool-spec.json` content. Pass the raw JSON string plus `python_code` and `requirements`. Use when user says "create a tool from this tool-spec.json" (e.g. [CreatingZipFileBasedonDocuments](https://github.com/markusvankempen/watsonx-orchestrate-devkit/tree/main/packages/vscode-extension/tests/fixtures/CreatingZipFileBasedonDocuments)).
+- **`create_python_tool_and_upload`** – Create a Python tool and upload its artifact in one step. `tool_spec`, `python_code`, optional `requirements`, `python_filename`.
+- **`create_tool_and_assign_to_agent`** – Create a tool from URL and assign to agent in one step. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
+- **`assign_tool_to_agent`** – Assign a tool to an agent. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
 - **`update_skill`** – Update name, description, permission (binding/connection not editable after creation)
 - **`copy_skill`** – Copy a tool. Use `new_name` (e.g. "MVKWeatherV2") to name the copy. Keeps connection and parameters. Names: letters, digits, underscores only.
-- **`execute_tool`** – Execute a tool by name or ID. Use for prompts like "execute News Search Tool" or "run the Weather tool". Resolves tool names to IDs, ensures an agent has the tool, then invokes it.
+- **`execute_tool`** – Execute a tool by name or ID. `agent_id` optional; uses first from `WO_AGENT_IDs` when omitted.
 
 ### Agents
 
 - **`list_agents`** – List all agents
-- **`get_agent`** – Get agent by ID
-- **`get_agent_chat_starter_settings`** – Get welcome message and quick prompts for an agent (by name or ID)
-- **`update_agent_chat_starter_settings`** – Update `welcome_message` and `quick_prompts` (array of `{title, prompt}`)
-- **`list_agent_tools`** – List tools assigned to an agent (by name or ID) with display names and descriptions. Use for "which tools are assigned to TimeWeatherAgent".
+- **`get_agent`** – Get agent by ID or name. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
+- **`get_agent_chat_starter_settings`** – Get welcome message and quick prompts. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
+- **`update_agent_chat_starter_settings`** – Update `welcome_message` and `quick_prompts`. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
+- **`list_agent_tools`** – List tools assigned to an agent with display names. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
 - **`create_agent`** – Create an agent. Pass `tools` array to **assign tools** to the agent
-- **`update_agent`** – Update an agent. Use `agent_name` or `agent_id`. Payload: `instructions`, `tools`, `style`, `tags`, `hidden`, `hide_reasoning`, `welcome_message`, `quick_prompts`.
-- **`update_agent_instructions_from_tools`** – Auto-generate and set instructions from assigned tools (names and descriptions)
-- **`invoke_agent`** – Chat with an agent. Use `agent_name` (e.g. "TimeWeatherAgent") or `agent_id`. Runs behind the scenes – no script needed.
+- **`update_agent`** – Update an agent. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
+- **`update_agent_instructions_from_tools`** – Auto-generate and set instructions from assigned tools. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
+- **`invoke_agent`** – Chat with an agent. `agent_id`/`agent_name` optional if `WO_AGENT_IDs` is set.
 - **`delete_agent`** – Delete an agent
 
 ### Connections
@@ -178,6 +219,21 @@ See [`examples/README.md`](examples/README.md) for details.
 
 - **`list_flows`**, **`get_flow`**, **`create_flow`**, **`delete_flow`**
 
+## Client Compatibility
+
+The MCP server is tested and works with:
+
+| Client | Config | Notes |
+|--------|--------|------|
+| **Cursor** | `examples/.cursor/mcp.json` | stdio, npx or node |
+| **VS Code Copilot** | `examples/.vscode/mcp.json` | Use `servers` key, `type: "stdio"` |
+| **Antigravity** | `examples/antigravity-mcp-config.json` | Add via Manage MCP Servers |
+| **Langflow** | STDIO or JSON mode | Output flattened for DataFrame; list tools have no limit/offset params |
+
+**Langflow:** Tool output is normalized to a list of flat dicts (primitive values only) so the MCP Tools component's DataFrame validation passes. Nested objects (e.g. `binding`, `input_schema`) are JSON-stringified. Cursor, VS Code, and Antigravity receive the same format and work identically.
+
+**Verification:** Run `npm run test:integration` with `WO_API_KEY` and `WO_INSTANCE_URL` to validate core functionality. For Cursor/VS Code: add the server, ask "List my Watson Orchestrate tools" or "Which agents do I have?" For Langflow: add MCP server, connect MCP Tools to an Agent, run the flow.
+
 ## Configuration
 
 Set these environment variables (or use a `.env` file):
@@ -185,7 +241,12 @@ Set these environment variables (or use a `.env` file):
 ```env
 WO_API_KEY=<your_ibm_cloud_api_key>
 WO_INSTANCE_URL=https://<your-instance-id>.orchestrate.ibm.com
+
+# Optional: default agent(s) when user omits agent_id/agent_name (first is used)
+WO_AGENT_IDs=agent-id-1,agent-id-2
 ```
+
+See [Quick Start](#quick-start) for full details on `WO_AGENT_IDs` and `WO_AGENT_ID`.
 
 ## Troubleshooting
 
@@ -194,7 +255,7 @@ WO_INSTANCE_URL=https://<your-instance-id>.orchestrate.ibm.com
 1. **Ensure credentials are set** – `WO_API_KEY` and `WO_INSTANCE_URL` must be in your MCP config `env` block or in a `.env` file.
 2. **Verify the server runs manually** – From a terminal:
    ```bash
-   WO_API_KEY=your-key WO_INSTANCE_URL=https://xxx.orchestrate.ibm.com npx -y @markusvankempen/wxo-builder-mcp-server
+   WO_API_KEY=your-key WO_INSTANCE_URL=https://xxx.orchestrate.ibm.com npx -y wxo-builder-mcp-server
    ```
    It should start and wait. Press Ctrl+C to exit.
 3. **Check Node version** – Requires Node.js 18+.
@@ -220,7 +281,7 @@ WO_API_KEY=... WO_INSTANCE_URL=... npm run test:integration
 npm run test:integration
 ```
 
-**Test questions:** List live connections | Copy tool with new name | List standard tools | Create MVKWeather from URL | Execute locally (Toronto) | Execute remotely | Agent chat (Toronto weather) | Exchange rate (TimeWeatherAgent) | Create REST Countries and assign to TimeWeatherAgent | List agent tools
+**Test questions:** List live connections | Copy tool | List standard tools | Create MVKWeather from URL | Execute locally/remotely | Agent chat | Exchange rate | REST Countries + assign | List agent tools | Create tool from tool-spec.json (CreatingZipFileBasedonDocuments) | Agent Conversation ZIP | Download tool artifact
 
 ## Assigning Tools to Agents
 
@@ -266,7 +327,7 @@ Config file: **`.vscode/mcp.json`** (workspace) or run **MCP: Open User Configur
         "watsonx": {
             "type": "stdio",
             "command": "npx",
-            "args": ["-y", "@markusvankempen/wxo-builder-mcp-server"],
+            "args": ["-y", "wxo-builder-mcp-server"],
             "env": {
                 "WO_API_KEY": "...",
                 "WO_INSTANCE_URL": "https://...orchestrate.ibm.com"
